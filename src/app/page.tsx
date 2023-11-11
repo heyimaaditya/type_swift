@@ -1,5 +1,11 @@
-import Image from 'next/image'
+import WordPallete from "@/components/wordPallete";
 
-export default function Home() {
-  return (<h1>Hello World</h1>)
+const Home = ()=>{
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center relative text-lg pointer-events-none bg-zinc-700">
+        <WordPallete />
+      </div>
+  );
 }
+
+export default Home;
