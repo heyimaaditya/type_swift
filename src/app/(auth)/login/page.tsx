@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-// import type { Metadata } from "next";
 import Image from "next/image";
 import image from "../../../../public/background.jpg";
 import logo from "../../../../public/logo_trans.png"
@@ -16,13 +15,11 @@ import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { SiGithub } from "react-icons/si";
 import { FaFacebookF } from "react-icons/fa";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-// export const metadata: Metadata = {
-//     title: "Login",
-//     description: "Login for website if user have account"
-// }
-
-export default function Login() {    
+export default function Login() {
+    const router = useRouter();    
     
     const FormSchema = z.object({
         email: z.string()
@@ -42,8 +39,34 @@ export default function Login() {
             password:""
         }})
 
-    const onSubmit = (values: z.infer<typeof FormSchema>)=>{
-        console.log({values});
+    const onSubmit = async(values: z.infer<typeof FormSchema>)=>{
+        console.log(values);
+        const signInData = await signIn(`credentials`, {
+            email: values.email,
+            password: values.password,
+            redirect: false
+        });
+
+        if(signInData?.error)
+        {
+            console.log(signInData.error);
+        }
+        else{
+            router.push('/');
+        }
+    }
+
+    const githubSignUp = async() => {
+        signIn('github', {
+            callbackUrl: '/',
+            redirect: true
+        })
+    }
+    const googleSignUp = async () => {
+        signIn('google', {
+            callbackUrl: '/',
+            redirect: true
+        })
     }
 
     return (
@@ -103,7 +126,7 @@ export default function Login() {
 
                                     <Button type="submit">Sign in</Button>
                                 </form>
-                                <div className='mx-auto my-4 flex w-full items-center justify-evenly before:mr-4 before:block before:h-px before:flex-grow before:bg-stone-400 after:ml-4 after:block after:h-px after:flex-grow after:bg-stone-400'>
+                                <div className='mx-auto my-4 flex w-full items-center justify-evenly before:mr-4 before:block before:h-px before:flex-grow before:bg-stone-400 after:ml-4 after:block after:h-px after:flex-grow after:bg-stone-400 pr-12'>
                                     or
                                 </div>
 
@@ -111,14 +134,14 @@ export default function Login() {
                                 <span>
                                     <span className='text-center text-sm text-black mt-2'>Sign up with &nbsp;</span>
                                     <button className="pl-3 text-3xl text-blue-700"><FaFacebookF /></button>
-                                    <button className="pl-3 text-3xl"><FcGoogle /></button>
-                                    <button className="pl-3 text-3xl"><SiGithub /></button>
+                                    <button className="pl-3 text-3xl" onClick={googleSignUp}><FcGoogle /></button>
+                                    <button className="pl-3 text-3xl" onClick={ githubSignUp }><SiGithub /></button>
                                 </span>
 
                                 {/* Sign Up Prompt */}
                                 <p className='text-center text-sm text-gray-900 mt-4'>
                                     New to Type Swift? Please &nbsp;
-                                    <Link className='text-blue-500 hover:underline' href='/register'>
+                                    <Link className='text-blue-500 hover:underline font-bold' href='/register'>
                                         Sign up
                                     </Link>
                                 </p>

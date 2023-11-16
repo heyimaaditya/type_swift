@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+  enum Provider {
+    CREDENTIALS
+    GOOGLE
+    FACEBOOK
+    GITHUB
+  }
+
+model User {
+  id          String    @id @default(uuid()) @unique
+  username    String    @unique
+  email       String    @unique
+  password    String
+  country     String?
+  rating      Int       @default(0)  
+  points      Int       @default(0)
+  provider    Provider
+  friends     String[]
+  accountType String    @default("free")
+  createdAt   DateTime  @default(now())
+
+  // Validations
+  @@map(name: "users")
+  @@unique([username, email])
+}
+
+model ForgotPasswordToken {
+  id        Int      @id @default(autoincrement())
+  token     String
+  expiresAt DateTime
+  userId String
+  createdAt DateTime @default(now())
+}
+
+model VerifyAccountToken {
+  id        Int      @id @default(autoincrement())
+  token     String
+  expiresAt DateTime
+  userId    Int
+  createdAt DateTime @default(now())
+}

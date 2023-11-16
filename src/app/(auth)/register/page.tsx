@@ -12,22 +12,17 @@ import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { Facebook } from 'lucide-react';
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { SiGithub } from "react-icons/si";
 import { FaFacebookF } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
-// export const metadata: Metadata = {
-//     title: "Login",
-//     description: "Login for website if user have account"
-// }
 
 export default function Login() {
-    function clickHandler(){
-        console.log(`clicked`);
-    }
+    const router = useRouter();
 
+    //validate form
     const FormSchema = z.object({
         email: z.string()
             .min(1, "Email is required")
@@ -37,7 +32,7 @@ export default function Login() {
             .string()
             .min(1, "Password is required")
             .min(8, "Password cannot be less than 8 characters"),
-        
+
         username: z
             .string()
             .min(1, "Username cannot be empty")
@@ -49,11 +44,12 @@ export default function Login() {
             .min(1, "Password is required")
             .min(8, "Password cannot be less than 8 characters")
     })
-    .refine((data) => data.password === data.confirmPassword, {
-        path: ['confirmPassword'],
-        message: 'Password do not match'
-    })
+        .refine((data) => data.password === data.confirmPassword, {
+            path: ['confirmPassword'],
+            message: 'Password do not match'
+        })
 
+        // default values
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -62,8 +58,28 @@ export default function Login() {
         }
     })
 
-    const onSubmit = (values: z.infer<typeof FormSchema>) => {
-        console.log({ values });
+    const onSubmit = async (values: z.infer<typeof FormSchema>)=>{
+        const response = await fetch('/api/user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: values.username,
+                email: values.email,
+                password: values.password
+            })
+        })
+        console.log(response);
+
+        if(response.ok)
+        {
+            router.push('/login');
+        }
+        else
+        {
+            console.error(`Registration failed.`)
+        }
     }
 
     return (
@@ -93,6 +109,7 @@ export default function Login() {
                             <Form {...form}>
                                 <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
 
+                                    {/* Username */}
                                     <FormField
                                         control={form.control}
                                         name="username"
@@ -107,6 +124,7 @@ export default function Login() {
                                         )}
                                     />
 
+                                        {/* email */}
                                     <FormField
                                         control={form.control}
                                         name="email"
@@ -121,6 +139,7 @@ export default function Login() {
                                         )}
                                     />
 
+                                    {/* Password */}
                                     <FormField
                                         control={form.control}
                                         name="password"
@@ -135,6 +154,7 @@ export default function Login() {
                                         )}
                                     />
 
+                                    {/* Confirm Password */}
                                     <FormField
                                         control={form.control}
                                         name="confirmPassword"
@@ -151,17 +171,17 @@ export default function Login() {
 
                                     <Button type="submit">Sign Up</Button>
                                 </form>
-                                <div className='mx-auto my-3 flex w-full items-center justify-evenly before:mr-4 before:block before:h-px before:flex-grow before:bg-stone-400 after:ml-4 after:block after:h-px after:flex-grow after:bg-stone-400'>
+                                <div className='mx-auto my-3 flex w-full items-center justify-evenly before:mr-4 before:block before:h-px before:flex-grow before:bg-stone-400 after:ml-4 after:block after:h-px after:flex-grow after:bg-stone-400 pr-12'>
                                     or
                                 </div>
 
                                 {/* Social Network Login */}
-                                    <span>
+                                <span>
                                     <span className='text-center text-sm text-black mt-2'>Sign up with &nbsp;</span>
                                     <button className="pl-3 text-3xl text-blue-700"><FaFacebookF /></button>
                                     <button className="pl-3 text-3xl"><FcGoogle /></button>
                                     <button className="pl-3 text-3xl"><SiGithub /></button>
-                                    </span>
+                                </span>
 
 
                                 {/* Sign in Prompt */}
