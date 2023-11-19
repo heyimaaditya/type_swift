@@ -79,6 +79,7 @@ const Word = ({ word, inputText, done }: { word: string; inputText: string; done
 };
 
 const WordPallete = () => {
+
     const strArr =
         "The quick brown box jumps over the lazy dog. Humanity is the quality of being human; the peculiar nature of man, by which he is distinguished from other beings. It is the characteristic that makes us human and sets us on and appreciation of the intrinsic value of each individual, and of the importance of everyone’s contribution to society. Humanity is an essential part of all of us , and it is important to remember that we are all part of a larger collective of humanity. Without it, we would not be able to live in harmony with one another or the planet. Humanity is something that is essential to our existence and to our survival as a species, and it is something that we must work to cultivate and protect.".split(" ");
 
@@ -135,7 +136,7 @@ const WordPallete = () => {
 
     return (
         <div className="flex justify-center items-center h-full">
-            <div className="border border-slate-600 shadow-md p-6 rounded-md flex flex-col gap-6 relative w-full bg-[#2c2e31]">
+            <div className="border shadow-md p-6 rounded-md flex flex-col gap-6 relative w-full bg-black">
                 {strArr.length === 0 && <div>Loading....</div>}
 
                 <input
@@ -156,7 +157,7 @@ const WordPallete = () => {
                     onBlur={(e) => e?.target?.focus()}
                 />
 
-                <div className="flex gap-2 flex-wrap max-w-[80vw] font-roboto_mono text-[#646669] tracking-wider text-xl">
+                <div className="flex gap-2 flex-wrap font-roboto_mono text-gray-500 tracking-wider text-xl">
                     {strArr.map((word, i) => {
                         const k = word + i;
                         return (
