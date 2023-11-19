@@ -8,6 +8,21 @@ import { Gauge } from 'lucide-react';
 import { TbTargetArrow } from "react-icons/tb";
 import { useRouter } from 'next/navigation';
 
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { ClipboardSignature } from "lucide-react"
+import { setInterval } from "timers";
+
 
 const Cursor = ({ left, done }: { left?: boolean; done?: boolean }) => {
     return (
@@ -87,28 +102,28 @@ const Word = ({ word, inputText, done }: { word: string; inputText: string; done
 export default function Random() {
     const router = useRouter();
 
-        // let arr = [false, false, false, false, false, false, false];
+    // let arr = [false, false, false, false, false, false, false];
 
-        const [loading, setLoading] = useState(true);
-        const [strArr, setStrArr] = useState("The quick brown fox jumps over the lazy dog. Humanity is the quality of being human; the peculiar nature of man, by which he is distinguished from other beings. It is the characteristic that makes us human and sets us on and appreciation of the intrinsic value of each individual, and of the importance of everyone’s.".split(" "));
+    const [loading, setLoading] = useState(true);
+    const [strArr, setStrArr] = useState("The quick brown fox jumps over the lazy dog. Humanity is the quality of being human; the peculiar nature of man, by which he is distinguished from other beings. It is the characteristic that makes us human and sets us on and appreciation of the intrinsic value of each individual, and of the importance of everyone’s.".split(" "));
 
-        async function setData(){
-            const response = await fetch('https://random-word-api.vercel.app/api?words=40');
-            const data = await response.json();
-            setStrArr(data);
-            // console.log(data);
-        }
+    async function setData() {
+        const response = await fetch('https://random-word-api.vercel.app/api?words=40');
+        const data = await response.json();
+        setStrArr(data);
+        // console.log(data);
+    }
 
-        useEffect( ()=>{
-            setLoading(true);
-            setData();
-            setTimeout(()=>{
-                setLoading(false);
-            }, 1000);
-            
-        }, []);
+    useEffect(() => {
+        setLoading(true);
+        setData();
+        setTimeout(() => {
+            setLoading(false);
+        }, 1000);
 
-    const [arr, setArr] = useState([false, false, false, false, false, false, false]);
+    }, []);
+
+    const [arr, setArr] = useState([false, false, false, false, false, false]);
     const [usrArr, setUserArr] = useState<string[]>([]);
     const [inputText, setInputText] = useState("");
     const [lastWrong, setLastWrong] = useState(false);
@@ -117,39 +132,44 @@ export default function Random() {
     const [gamemode, setGameMode] = useState('notime');                   //notime   timed
     const [showDiv, setShowDiv] = useState(1);
     const [runClock, SetRunClock] = useState(null);
+    const [PastedValue, setPastedValue] = useState("Your Text");
 
-    const [speed, setSpeed] = useState(0);
     const [accurate, setAccurate] = useState(0);
-    
+
     useEffect(() => {
         const intervalId = setInterval(() => {
-            setShowDiv(prevState => prevState+1);
+            setShowDiv(prevState => prevState + 1);
         }, 500);
         return () => clearInterval(intervalId);
     }, []);
 
-    useEffect(()=>{
+    useEffect(() => {
         console.log(gamestart);
-        if(gamestart === 'finished')
+        if (gamestart === 'finished')
             router.push('/');
 
-        if(gamestart === 'running' && gamemode === 'timed')
+        if (gamestart === 'running' && gamemode === 'timed')
             handleTimeMode();
 
         if (gamestart === 'not_started')
             clearInterval(runClock!);
     }, [gamestart, gamemode]);
 
-    function handleTimeMode(){      //called when game is running and in timed mode
+
+    useEffect(()=>{
+        calculateAccuracy(strArr, usrArr);
+    }, [inputText, strArr, usrArr])
+
+    function handleTimeMode() {      //called when game is running and in timed mode
         let index: number = arr.indexOf(true);
         console.log(index);
-        index-=2;
+        index -= 2;
 
-        const runningClock = setInterval(()=>{
+        const runningClock = setInterval(() => {
             const index = arr.indexOf(true);
             setTime((prev) => {
-                prev[index - 2] = prev[index-2]-0.5;
-                if(prev[index-2]===0.5)
+                prev[index - 2] = prev[index - 2] - 0.5;
+                if (prev[index - 2] === 0.5)
                     setGameStart('finished');
                 return prev;
             })
@@ -163,8 +183,7 @@ export default function Random() {
 
         // console.log(`After`);
         // console.table([inputText, usrArr]);
-        if(gamestart === "not_started")
-        {
+        if (gamestart === "not_started") {
             setGameStart("running");
             console.log("Game Started");
         }
@@ -209,21 +228,21 @@ export default function Random() {
         // console.table([inputText, usrArr]);
     }
 
-    function addInputs(punctuations: Array<string>){
-        fetch('https://random-word-api.vercel.app/api?words=40').then((response)=>{
-            response.json().then((data)=>{
-            const result = [];
-            for (const word of data) {
-                const shouldAddPunctuation = Math.random() < 0.2;
-                if (shouldAddPunctuation) {
-                    const punctuationIndex = Math.floor(Math.random() * word.length);
-                    const punctuation = punctuations[Math.floor(Math.random() * punctuations.length)];
-                    result.push(word.slice(0, punctuationIndex) + punctuation + word.slice(punctuationIndex));
-                } else {
-                    result.push(word);
+    function addInputs(punctuations: Array<string>) {
+        fetch('https://random-word-api.vercel.app/api?words=40').then((response) => {
+            response.json().then((data) => {
+                const result = [];
+                for (const word of data) {
+                    const shouldAddPunctuation = Math.random() < 0.2;
+                    if (shouldAddPunctuation) {
+                        const punctuationIndex = Math.floor(Math.random() * word.length);
+                        const punctuation = punctuations[Math.floor(Math.random() * punctuations.length)];
+                        result.push(word.slice(0, punctuationIndex) + punctuation + word.slice(punctuationIndex));
+                    } else {
+                        result.push(word);
+                    }
                 }
-            }
-            setStrArr(result);
+                setStrArr(result);
             })
         }).catch(Error)
         {
@@ -231,7 +250,7 @@ export default function Random() {
         }
     }
 
-    function handlePunctuation(){
+    function handlePunctuation() {
         setLoading(true);
         setUserArr([]);
         setGameMode('notime');
@@ -242,7 +261,7 @@ export default function Random() {
         setLoading(false);
     }
 
-    function handleNumber(){
+    function handleNumber() {
         setLoading(true);
         setUserArr([]);
         setGameMode('notime');
@@ -253,21 +272,21 @@ export default function Random() {
         setLoading(false);
     }
 
-    function handleTimer(choice: number){
+    function handleTimer(choice: number) {
         restartGame();
-        let time:Array<number> = [30, 60, 120, 300]; 
+        let time: Array<number> = [30, 60, 120, 300];
         let index = Number(choice) - 2;
 
-        setArr(()=>{
+        setArr(() => {
             let newArr = Array(6).fill(false);
-            newArr[choice]=true
+            newArr[choice] = true
             return newArr;
         })
         console.log(time[index]);
         setGameMode('timed');
     }
 
-    function restartGame(){
+    function restartGame() {
         setData();
         setInputText("");
         setLastWrong(false);
@@ -279,18 +298,47 @@ export default function Random() {
         setTime([30, 60, 120, 300]);
     }
 
+    function handleClipEvent(){
+        navigator.clipboard.readText().then((text)=>{
+            setLoading(true);
+            setPastedValue(text);
+            restartGame();
+            setTimeout(()=>{
+                setStrArr(text.split(' ').slice(0, 90));
+            }, 2000);
+            setLoading(false);
+    })}
+
+    function calculateAccuracy(strArr: Array<string>, usrArr: Array<string>) {
+        const totalLength = usrArr.join('').split('').length;
+        let correctLetter = 0;
+        for(let i=0; i<usrArr.length; i++)
+        {
+            let str = strArr[i].split('');
+            let usr = usrArr[i].split('');
+            for(let j=0; j<usrArr[i].split('').length; j++)
+            {
+                if(str[j]===usr[j])
+                    correctLetter++;
+            }
+        }
+        
+        let accuracy = +((correctLetter/totalLength)*100).toFixed(2) || 0;
+        setAccurate(accuracy);
+    }
+
     return (
         <div className="h-screen bg-black absolute">
-        <div className="options mt-10 flex w-min">
-            <span className="flex border border-sky-800 rounded-sm flex-auto w-min ml-96">
+            <div className="options mt-10 flex w-min">
+                <span className="flex border border-sky-800 rounded-sm flex-auto w-min ml-96">
                     <div><Button variant='ghost' onClick={handlePunctuation}><div className={classNames('text-xs', 'font-extrabold', { 'text-sky-600': !arr[0], 'text-sky-200': arr[0] })}>@ ! ? :</div></Button></div>
 
                     <div><Button variant='ghost' className="ml-2" onClick={handleNumber}><div className={classNames('text-xs', 'font-extrabold', { 'text-sky-600': !arr[1], 'text-sky-200': arr[1] })}>123</div></Button></div>
 
-                    { showDiv && <div className="flex border rounded-sm ml-2" >
+                    {showDiv && <div className="flex border rounded-sm ml-2" >
                         <div className="m-2" ><AlarmClock color='red' /></div>
 
-                        <Button variant='ghost' onClick={()=>handleTimer(2)}><div className={classNames('font-extrabold', { 'text-sky-600': !arr[2], 'text-white':arr[2], 'text-xl': arr[2]})}>{time[0]}</div></Button>
+                        <Button variant='ghost' onClick={() => handleTimer(2)}><div className={classNames('font-extrabold', { 'text-sky-600': !arr[2], 'text-white': arr[2], 'text-xl': arr[2] })}>{time[0]}</div></Button>
 
                         <Button variant='ghost' onClick={() => handleTimer(3)}><div className={classNames('font-extrabold', { 'text-sky-600': !arr[3], 'text-white': arr[3], 'text-xl': arr[3] })}>{time[1]}</div></Button>
 
@@ -300,50 +348,85 @@ export default function Random() {
                     </div>}
 
                     <div>
-                        <Button variant='ghost' className="ml-2"><div className={classNames('text-sm', 'font-extrabold', { 'text-sky-600': !arr[6], 'text-sky-200': arr[6] })}>custom</div></Button>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button variant='ghost'><div className={classNames('font-extrabold',  'text-sky-600')}>Custom</div></Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>Custom  Text</DialogTitle>
+                                    <DialogDescription>
+                                        Paste anything here
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="flex items-center space-x-2">
+                                    <div className="grid flex-1 gap-2">
+                                        <Label htmlFor="link" className="sr-only">
+                                            Link
+                                        </Label>
+                                        <Input
+                                            id="link"
+                                            disabled
+                                            value={PastedValue}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <Button type="submit" size="sm" className="px-3" onClick={handleClipEvent}>
+                                        <ClipboardSignature className="h-4 w-4"/>
+                                    </Button>
+                                </div>
+                                <DialogFooter className="sm:justify-start">
+                                    <DialogClose asChild>
+                                        <Button type="button" variant="secondary">
+                                            Close
+                                        </Button>
+                                    </DialogClose>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
                     </div>
                 </span>
 
-                    <span className="flex border border-sky-800 rounded-sm w-min p-2 ml-72">
-                        <div className="flex"><Gauge color="green" /><span className="text-lg text-white pl-3">{speed}</span><span className="text-slate-200 text-sm ml-1">wpm</span></div>
-                        <div className="text-green-400 text-2xl ml-3  flex"><TbTargetArrow /><span className="text-white ml-1">{accurate}</span><span className="text-slate-200 text-sm ml-1">%</span></div>
-                    </span>
-        </div>
+                <span className="flex border border-sky-800 rounded-sm w-min p-2 ml-64">
+                    <div className="flex"><Gauge color="green" /><span className="text-lg text-white pl-3">speed</span><span className="text-slate-200 text-sm ml-1">wpm</span></div>
+                    <div className="text-green-400 text-2xl ml-3  flex"><TbTargetArrow /><span className="text-white ml-1">{accurate}</span><span className="text-slate-200 text-sm ml-1">%</span></div>
+                </span>
+            </div>
 
-            <div className={classNames('border', 'shadow-md', 'p-6', 'rounded-md', 'flex', 'flex-col', 'gap-6', 'relative', 'm-12', {'blur-sm': loading})}>
-                    {strArr.length === 0 && <div>Loading....</div>}
+            <div className={classNames('border', 'shadow-md', 'p-6', 'rounded-md', 'flex', 'flex-col', 'gap-6', 'relative', 'm-12', { 'blur-sm': loading })}>
+                {strArr.length === 0 && <div>Loading....</div>}
 
-                    <input
-                        autoComplete="off"
-                        autoCapitalize="off"
-                        autoCorrect="off"
-                        data-gramm="false"
-                        data-gramm_editor="false"
-                        data-enable-grammarly="false"
-                        list="autocompleteOff"
-                        className="absolute bottom-0 left-0 right-0 -z-10 opacity-0"
-                        inputMode="none"
-                        value={inputText}
-                        onKeyUp={handleInput}
-                        onChange={() => { }}
-                        // eslint-disable-next-line jsx-a11y/no-autofocus
-                        autoFocus
-                        onBlur={(e) => e?.target?.focus()}
-                    />
+                <input
+                    autoComplete="off"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    data-gramm="false"
+                    data-gramm_editor="false"
+                    data-enable-grammarly="false"
+                    list="autocompleteOff"
+                    className="absolute bottom-0 left-0 right-0 -z-10 opacity-0"
+                    inputMode="none"
+                    value={inputText}
+                    onKeyUp={handleInput}
+                    onChange={() => { }}
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus
+                    onBlur={(e) => e?.target?.focus()}
+                />
 
-                    <div className="flex gap-2 flex-wrap font-roboto_mono text-gray-500 tracking-wider text-xl">
-                        {strArr.map((word, i) => {
-                            const k = word + i;
-                            return (
-                                <Word
-                                    key={k}
-                                    word={word}
-                                    inputText={usrArr.length === i ? inputText : usrArr[i]}
-                                    done={usrArr[i]}
-                                />
-                            );
-                        })}
-                    </div>
+                <div className="flex gap-2 flex-wrap font-roboto_mono text-gray-500 tracking-wider text-xl">
+                    {strArr.map((word, i) => {
+                        const k = word + i;
+                        return (
+                            <Word
+                                key={k}
+                                word={word}
+                                inputText={usrArr.length === i ? inputText : usrArr[i]}
+                                done={usrArr[i]}
+                            />
+                        );
+                    })}
+                </div>
             </div>
 
         </div>
