@@ -21,7 +21,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ClipboardSignature } from "lucide-react"
-import { setInterval } from "timers";
+// import { setInterval } from "timers";
 
 
 const Cursor = ({ left, done }: { left?: boolean; done?: boolean }) => {
@@ -101,9 +101,6 @@ const Word = ({ word, inputText, done }: { word: string; inputText: string; done
 
 export default function Random() {
     const router = useRouter();
-
-    // let arr = [false, false, false, false, false, false, false];
-
     const [loading, setLoading] = useState(true);
     const [strArr, setStrArr] = useState("The quick brown fox jumps over the lazy dog. Humanity is the quality of being human; the peculiar nature of man, by which he is distinguished from other beings. It is the characteristic that makes us human and sets us on and appreciation of the intrinsic value of each individual, and of the importance of everyone’s.".split(" "));
 
@@ -132,9 +129,10 @@ export default function Random() {
     const [gamemode, setGameMode] = useState('notime');                   //notime   timed
     const [showDiv, setShowDiv] = useState(1);
     const [runClock, SetRunClock] = useState(null);
+    const [speed, setSpeed] = useState(0);
     const [PastedValue, setPastedValue] = useState("Your Text");
-
     const [accurate, setAccurate] = useState(0);
+    const [currentms, SetCurrentms] = useState(0);
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -145,6 +143,9 @@ export default function Random() {
 
     useEffect(() => {
         console.log(gamestart);
+        if(gamestart === 'running')
+            SetCurrentms(Date.now());
+
         if (gamestart === 'finished')
             router.push('/');
 
@@ -158,6 +159,8 @@ export default function Random() {
 
     useEffect(()=>{
         calculateAccuracy(strArr, usrArr);
+        if(strArr.length === usrArr.length)
+            setGameStart('finished');
     }, [inputText, strArr, usrArr])
 
     function handleTimeMode() {      //called when game is running and in timed mode
@@ -293,9 +296,9 @@ export default function Random() {
         setGameStart('not_started');
         setGameMode('notime');
         setUserArr([]);
-        setSpeed(0);
         setAccurate(0);
         setTime([30, 60, 120, 300]);
+        setSpeed(0);
     }
 
     function handleClipEvent(){
@@ -322,6 +325,10 @@ export default function Random() {
                     correctLetter++;
             }
         }
+        let currms = Date.now();
+        let elapsedTime = (currms - currentms) / 1000;
+        let speed_calc = ((correctLetter * 15) / elapsedTime).toFixed(2);
+        setSpeed(speed_calc);
         
         let accuracy = +((correctLetter/totalLength)*100).toFixed(2) || 0;
         setAccurate(accuracy);
@@ -387,8 +394,8 @@ export default function Random() {
                     </div>
                 </span>
 
-                <span className="flex border border-sky-800 rounded-sm w-min p-2 ml-64">
-                    <div className="flex"><Gauge color="green" /><span className="text-lg text-white pl-3">speed</span><span className="text-slate-200 text-sm ml-1">wpm</span></div>
+                <span className="flex border border-sky-800 rounded-sm w-min p-2 ml-52">
+                    <div className="flex"><Gauge color="green" /><span className="text-lg text-white pl-3">{speed}</span><span className="text-slate-200 text-sm ml-1">wpm</span></div>
                     <div className="text-green-400 text-2xl ml-3  flex"><TbTargetArrow /><span className="text-white ml-1">{accurate}</span><span className="text-slate-200 text-sm ml-1">%</span></div>
                 </span>
             </div>
