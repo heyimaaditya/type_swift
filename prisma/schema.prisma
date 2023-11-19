@@ -22,13 +22,10 @@ model User {
   id          String    @id @default(uuid()) @unique
   username    String    @unique
   email       String    @unique
-  password    String
-  country     String?
-  rating      Int       @default(0)  
-  points      Int       @default(0)
-  provider    Provider
+  password    String?
+  country     String? 
+  speed       Int       @default(0)
   friends     String[]
-  accountType String    @default("free")
   createdAt   DateTime  @default(now())
 
   // Validations

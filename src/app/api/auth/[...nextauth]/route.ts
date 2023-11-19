@@ -37,13 +37,17 @@ export const authOptions: NextAuthOptions = {
                 if (!existingUser) {                //no user exists in database
                     return null;
                 }
-                
-                //check if password matches
-                const passwordMatch = await bcrypt.compare(credentials.password, existingUser.password);
 
-                if (!passwordMatch) {
-                    return null;
+                if(existingUser.password)
+                {
+                    //check if password matches
+                    const passwordMatch = await bcrypt.compare(credentials.password, existingUser.password);
+
+                    if (!passwordMatch) 
+                        return null;
                 }
+                
+                
                 
                 //successful sigin
                 return {
@@ -62,27 +66,27 @@ export const authOptions: NextAuthOptions = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!
         })
     ],
-    callbacks: {
-        async jwt({ token, user }){
-            console.table([token, user]);
-            if(user)
-            return {
-                ...token, 
-                username: user.username
-            }
-            return token
-        },
-        async session({ session, token }){ 
-        return{
-            ...session, 
-            user: {
-                ...sessionStorage.user,
-                username: token.username
-            }
-        }
-    },
+    // callbacks: {
+    //     async jwt({ token, user }){
+    //         console.table([token, user]);
+    //         if(user)
+    //         return {
+    //             ...token, 
+    //             username: user.username
+    //         }
+    //         return token
+    //     },
+    //     async session({ session, token }){ 
+    //     return{
+    //         ...session, 
+    //         user: {
+    //             ...sessionStorage.user,
+    //             username: token.username
+    //         }
+    //     }
+    // },
 }
-}
+
 
 const handler = NextAuth(authOptions);
 export {handler as GET, handler as POST};
