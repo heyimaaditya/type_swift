@@ -1,18 +1,11 @@
--- CreateEnum
-CREATE TYPE "Provider" AS ENUM ('CREDENTIALS', 'GOOGLE', 'FACEBOOK', 'GITHUB');
-
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "country" TEXT,
-    "rating" INTEGER NOT NULL DEFAULT 0,
-    "points" INTEGER NOT NULL DEFAULT 0,
-    "provider" "Provider" NOT NULL,
+    "password" TEXT,
+    "speed" INTEGER NOT NULL DEFAULT 0,
     "friends" TEXT[],
-    "accountType" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")

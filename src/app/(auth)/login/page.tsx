@@ -132,7 +132,7 @@ export default function Login() {
 
                                 {/* Social Network Login */}
                                 <span>
-                                    <span className='text-center text-sm text-black mt-2'>Sign up with &nbsp;</span>
+                                    <span className='text-center text-sm text-black mt-2'>Sign in with &nbsp;</span>
                                     <button className="pl-3 text-3xl text-blue-700"><FaFacebookF /></button>
                                     <button className="pl-3 text-3xl" onClick={googleSignUp}><FcGoogle /></button>
                                     <button className="pl-3 text-3xl" onClick={ githubSignUp }><SiGithub /></button>

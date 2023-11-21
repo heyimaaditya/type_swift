@@ -10,20 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-  enum Provider {
-    CREDENTIALS
-    GOOGLE
-    FACEBOOK
-    GITHUB
-  }
-
 model User {
   id          String    @id @default(uuid()) @unique
   username    String    @unique
   email       String    @unique
-  password    String?
-  country     String? 
+  password    String? 
   speed       Int       @default(0)
   friends     String[]
   createdAt   DateTime  @default(now())

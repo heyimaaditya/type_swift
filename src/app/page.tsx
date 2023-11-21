@@ -1,3 +1,4 @@
+'use client';
 import WordPallete from "@/components/wordPallete";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
@@ -7,8 +8,8 @@ import HeroSection from "@/components/herosection";
 import Feature from "@/components/feature";
 import Footer from "@/components/ui/footer";
 
-const Home =async()=>{
-  const session = await getServerSession(authOptions);
+const Home = ()=>{
+  // const session = await getServerSession(authOptions);
   return (
     <div>
       <div className="hero h-screen">

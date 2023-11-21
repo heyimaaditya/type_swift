@@ -53,7 +53,6 @@ export async function POST(req: Request) {
             data: {
                 username,
                 email,
-                provider: "CREDENTIALS",
                 password: hashedPassword
             }
         });
