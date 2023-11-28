@@ -161,6 +161,7 @@ const Dictate = () => {
     const [gameStat, setGameStat] = useState('stopped');                 //running, stopped
     const [accurate, setAccurate] = useState(0);
     const [speed, setSpeed] = useState(0);
+    const [link, setLink] = useState('https://aac.saavncdn.com/552/26b33054461788c6282e4ac814d3769f_320.mp4')
 
         const fetchData = async () => {
             try {
@@ -171,6 +172,10 @@ const Dictate = () => {
                 }
                 const result = await response.json();
                 setData(result);
+
+                let lii = result['data']['results'][0]['downloadUrl'][4]['link']+"";
+                setLink(lii);
+
                 console.log(result);
                 setImageLink(result['data']['results'][0]['image'][2]['link']);
                 setSongNameRes(result['data']['results'][0]['name']);
@@ -192,7 +197,7 @@ const Dictate = () => {
             setTime(Date.now());
         };
 
-        audioRef.current.addEventListener('timeupdate', handleTimeUpdate);
+        audioRef.current?.addEventListener('timeupdate', handleTimeUpdate);
 
         return () => {
             audioRef.current?.removeEventListener('timeupdate', handleTimeUpdate);
@@ -212,12 +217,12 @@ const Dictate = () => {
             setGameStat('running');
         }
 
-        audioRef.current.play();
+        audioRef.current?.play();
         setIsPaused(!isPaused);
     };
 
     const pauseAudio = () => {
-        audioRef.current.pause();
+        audioRef.current?.pause();
         setIsPaused(!isPaused);
     };
 
@@ -240,7 +245,7 @@ const Dictate = () => {
         try{
             const response = await fetch(`https://saavn.me/lyrics?id=${songId}`);
             let temp = await response.json();
-            let lyrics = temp['data']['lyrics'];
+            let lyrics:Array<string> = temp['data']['lyrics'].split(' ');
             setStrArr(lyrics);
         }
         catch(error)
@@ -285,8 +290,8 @@ const Dictate = () => {
         
 
             <div className='hidden'>
-            {songId && <audio ref={audioRef} controls onLoadedMetadata={handleLoadedMetadata}>
-                <source src='https://aac.saavncdn.com/552/26b33054461788c6282e4ac814d3769f_320.mp4' type="audio/mp3" />
+            {songId && link && <audio ref={audioRef} controls onLoadedMetadata={handleLoadedMetadata}>
+                <source src={link} type="audio/mp3" />
             </audio>}
             </div>
 
@@ -325,6 +330,7 @@ const Dictate = () => {
 
                         <div className='text-primary text-lg'>
                             Current Time: {currentTime} seconds
+                            <div className='text-lg'>{link}</div>
                             {/* Duration: {duration};
                             Time: {time} seconds */}
                         </div>
