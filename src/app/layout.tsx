@@ -19,7 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <NextAuthProvider>
+        <div className='mx-28'>
           {children}
+          </div>
         </NextAuthProvider>
       </body>
     </html>

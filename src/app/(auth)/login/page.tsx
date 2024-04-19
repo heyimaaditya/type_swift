@@ -12,13 +12,11 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { FcGoogle } from "react-icons/fc";
-import { SiGithub } from "react-icons/si";
-import { FaFacebookF } from "react-icons/fa";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-export default function Login() {
+export default function Login() 
+{
     const router = useRouter();    
     
     const FormSchema = z.object({
@@ -54,20 +52,7 @@ export default function Login() {
         else{
             router.push('/');
         }
-    }
-
-    const githubSignUp = async() => {
-        signIn('github', {
-            callbackUrl: '/',
-            redirect: true
-        })
-    }
-    const googleSignUp = async () => {
-        signIn('google', {
-            callbackUrl: '/',
-            redirect: true
-        })
-    }
+}
 
     return (
         <>
@@ -82,6 +67,7 @@ export default function Login() {
             </div>
 
             <div className="absolute z-0 h-4/5 w-4/5 bg-s late-600 ml-36 mt-20">
+
                 <div className="flex flex-row">
                     <div className="basis-1/2 hidden md:block">
                         <Image
@@ -91,7 +77,9 @@ export default function Login() {
                         </Image>
                         <p className="text-white text-sm md:text-lg lg:text-xl xl:text-2xl font-serif ml-4">Sign in or Create an Account</p>
                     </div>
-                    <div className="basis-6/12 rounded">
+
+
+                    <div className="basis-1/2 rounded m-20">
                         <div className="bg-slate-200 rounded-xl text-lg pl-12 pt-7 pb-8">
                             <Form {...form}>
                                 <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
@@ -124,19 +112,11 @@ export default function Login() {
                                         )}
                                     />
 
-                                    <Button type="submit">Sign in</Button>
-                                </form>
-                                <div className='mx-auto my-4 flex w-full items-center justify-evenly before:mr-4 before:block before:h-px before:flex-grow before:bg-stone-400 after:ml-4 after:block after:h-px after:flex-grow after:bg-stone-400 pr-12'>
-                                    or
-                                </div>
+                                <Button type="submit">Sign in</Button>
 
-                                {/* Social Network Login */}
-                                <span>
-                                    <span className='text-center text-sm text-black mt-2'>Sign in with &nbsp;</span>
-                                    <button className="pl-3 text-3xl text-blue-700"><FaFacebookF /></button>
-                                    <button className="pl-3 text-3xl" onClick={googleSignUp}><FcGoogle /></button>
-                                    <button className="pl-3 text-3xl" onClick={ githubSignUp }><SiGithub /></button>
-                                </span>
+                                </form>
+
+                                <div className='mx-auto my-4 flex w-full items-center justify-evenly before:mr-4 before:block before:h-px before:flex-grow before:bg-stone-400 after:ml-4 after:block after:h-px after:flex-grow after:bg-stone-400 pr-12'>or</div>
 
                                 {/* Sign Up Prompt */}
                                 <p className='text-center text-sm text-gray-900 mt-4'>

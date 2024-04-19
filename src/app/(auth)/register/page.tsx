@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-// import type { Metadata } from "next";
 import Image from "next/image";
 import image from "../../../../public/background.jpg";
 import logo from "../../../../public/logo_trans.png"
@@ -13,9 +12,6 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { FcGoogle } from "react-icons/fc";
-import { SiGithub } from "react-icons/si";
-import { FaFacebookF } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
 
@@ -104,6 +100,7 @@ export default function Login() {
                         </Image>
                         <p className="text-white text-sm md:text-lg lg:text-xl xl:text-2xl font-serif ml-4">Sign in or Create an Account</p>
                     </div>
+
                     <div className="basis-6/12 rounded">
                         <div className="bg-slate-200 rounded-xl text-lg pl-12 pt-7 pb-8 ">
                             <Form {...form}>
@@ -175,21 +172,10 @@ export default function Login() {
                                     or
                                 </div>
 
-                                {/* Social Network Login */}
-                                <span>
-                                    <span className='text-center text-sm text-black mt-2'>Sign up with &nbsp;</span>
-                                    <button className="pl-3 text-3xl text-blue-700"><FaFacebookF /></button>
-                                    <button className="pl-3 text-3xl"><FcGoogle /></button>
-                                    <button className="pl-3 text-3xl"><SiGithub /></button>
-                                </span>
-
-
                                 {/* Sign in Prompt */}
                                 <p className='text-center text-sm text-gray-900 pt-3'>
                                     If you have an account, please&nbsp;
-                                    <Link className='text-blue-500 hover:underline font-bold' href='/login'>
-                                        Sign in
-                                    </Link>
+                                    <Link className='text-blue-500 hover:underline font-bold' href='/login'>Sign in</Link>
                                 </p>
                             </Form>
                         </div>
