@@ -139,11 +139,23 @@ export default function Home() {
 
     }, []);
 
+
+    const restartGame = useCallback(() =>{
+        setData();
+        setInputText("");
+        setLastWrong(false);
+        setGameStart('not_started');
+        setGameMode('notime');
+        setUserArr([]);
+        setAccurate(0);
+        setTime([30, 60, 120, 300]);
+        setSpeed(0);
+    }, []);
+
     const handleTimeMode = useCallback(() => {      //called when game is running and in timed mode
         let index: number = arr.indexOf(true);
         console.log(index);
         index -= 2;
-        conso
 
         const runningClock = setInterval(() => {
             const index = arr.indexOf(true);
@@ -159,8 +171,7 @@ export default function Home() {
         return () => {
             clearInterval(runningClock);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [arr]);
+    }, [arr, restartGame]);
 
     const calculateAccuracy = useCallback((strArr: Array<string>, usrArr: Array<string>) => {
         const totalLength = usrArr.join('').split('').length;
@@ -194,7 +205,6 @@ export default function Home() {
         if (gamestart === 'running' && gamemode === 'timed')
             handleTimeMode();
 
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gamestart, gamemode, router, handleTimeMode]);
 
 
@@ -327,18 +337,6 @@ export default function Home() {
         setGameMode('timed');
     }
 
-    function restartGame() {
-        setData();
-        setInputText("");
-        setLastWrong(false);
-        setGameStart('not_started');
-        setGameMode('notime');
-        setUserArr([]);
-        setAccurate(0);
-        setTime([30, 60, 120, 300]);
-        setSpeed(0);
-    }
-
     function handleClipEvent() {
         navigator.clipboard.readText().then((text) => {
             setLoading(true);
@@ -460,7 +458,6 @@ export default function Home() {
                         value={inputText}
                         onKeyUp={handleInput}
                         onChange={() => { console.log({ inputText }) }}
-                        // eslint-disable-next-line jsx-a11y/no-autofocus
                         autoFocus
                         onBlur={(e) => e?.target?.focus()}
                     />
