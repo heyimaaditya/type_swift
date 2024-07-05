@@ -26,7 +26,7 @@ const Cursor = ({ left, done }: { left?: boolean; done?: boolean }) => {
         <motion.div
             layoutId="cursor"
             transition={{ duration: 0.11, ease: "linear" }}
-            className={classNames("bg-red-500 w-0.5 flex absolute h-full top-0", {
+            className={classNames("bg-yellow-500 w-0.5 flex absolute h-full top-0", {
                 "right-0": !left,
                 "left-0": left,
                 hidden: done,
@@ -96,22 +96,29 @@ const Word = ({ word, inputText, done }: { word: string; inputText: string; done
     }, [word, inputText, done, isWrong]);
 };
 
-export default function Home() 
-{
+type ProgressProps = {
+    name: string;
+    accuracy: number;
+    speed: number;
+};
+
+
+export default function Home() {
     const [arr, setArr] = useState([false, false, false, false, false, false]);
+    const [progress, setProgress] = useState<ProgressProps[]>([{name: "0", accuracy: 0, speed: 0 }]);
     const [usrArr, setUserArr] = useState<string[]>([]);
     const [inputText, setInputText] = useState("");
     const [lastWrong, setLastWrong] = useState(false);
     const [time, setTime] = useState([30, 60, 120, 300]);
     const [gamestart, setGameStart] = useState('not_started');           //not_started running finished 
     const [gamemode, setGameMode] = useState('notime');                   //notime   timed
-    const [runClock, SetRunClock] = useState<null | NodeJS.Timer>(null);
     const [PastedValue, setPastedValue] = useState("Your Text");
     const [speed, setSpeed] = useState(0);
     const [accurate, setAccurate] = useState(0);
     const [currentms, SetCurrentms] = useState(0);
     const [params, setParams] = useState(12);
     const [loading, setLoading] = useState(true);
+    const [finished, setFinished] = useState(false);
     const [strArr, setStrArr] = useState("The quick brown fox jumps over the lazy dog. Humanity is the quality of being human; the peculiar nature of man, by which he is distinguished from other beings. It is the characteristic that makes us human and sets us on and appreciation of the intrinsic value of each individual, and of the importance of everyone.".split(" "));
     const router = useRouter();
 
@@ -127,29 +134,35 @@ export default function Home()
         setLoading(true);
         setData();
         setTimeout(() => {
-        setLoading(false);
+            setLoading(false);
         }, 1000);
 
     }, []);
 
-    const handleTimeMode= useCallback(()=>{      //called when game is running and in timed mode
+    const handleTimeMode = useCallback(() => {      //called when game is running and in timed mode
         let index: number = arr.indexOf(true);
         console.log(index);
         index -= 2;
+        conso
 
         const runningClock = setInterval(() => {
             const index = arr.indexOf(true);
             setTime((prev) => {
                 prev[index - 2] = prev[index - 2] - 0.5;
-                if (prev[index - 2] === 0.5)
-                    setGameStart('finished');
+                if (prev[index - 2] <= 0.5) {
+                    setFinished(true);
+                    restartGame();
+                }
                 return prev;
             })
         }, 1000);
-        SetRunClock(runningClock);
+        return () => {
+            clearInterval(runningClock);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [arr]);
 
-    const calculateAccuracy = useCallback((strArr: Array<string>, usrArr: Array<string>) =>{
+    const calculateAccuracy = useCallback((strArr: Array<string>, usrArr: Array<string>) => {
         const totalLength = usrArr.join('').split('').length;
         let correctLetter = 0;
         for (let i = 0; i < usrArr.length; i++) {
@@ -170,7 +183,6 @@ export default function Home()
     }, [currentms]);
 
 
-
     useEffect(() => {
         console.log(gamestart);
         if (gamestart === 'running')
@@ -182,9 +194,7 @@ export default function Home()
         if (gamestart === 'running' && gamemode === 'timed')
             handleTimeMode();
 
-        if (gamestart === 'not_started')
-            clearInterval(runClock!);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gamestart, gamemode, router, handleTimeMode]);
 
 
@@ -193,20 +203,17 @@ export default function Home()
             setGameStart('finished');
     }, [strArr, usrArr]);
 
-    
-    useEffect(()=>{
-        let interval= setInterval(()=>{
+
+    useEffect(() => {
+        let interval = setInterval(() => {
             setParams(Math.random());
             calculateAccuracy(strArr, usrArr);
         }, 1000)
 
-        return ()=>{
+        return () => {
             clearInterval(interval);
         }
-    }, [calculateAccuracy, strArr, usrArr])
-
-
-
+    }, [calculateAccuracy, router, strArr, usrArr])
 
     const handleInput = (e: { nativeEvent: { key: any; }; }) => {
         const char = e.nativeEvent.key;
@@ -231,6 +238,10 @@ export default function Home()
             }
             console.log(`Space Pressed`)
             console.log(`After`);
+            if (usrArr.length >= strArr.length - 1){
+                setFinished(true);
+                restartGame();
+            }
             console.table([inputText, usrArr]);
         }
         else if (char.length === 1) {
@@ -250,8 +261,7 @@ export default function Home()
                     setInputText("");
                 }
             }
-            else 
-            {
+            else {
                 setInputText(inputText.slice(0, inputText.length - 1) || "");
             }
         };
@@ -342,133 +352,136 @@ export default function Home()
     }
 
 
-
     return (
-        <div className="mx-12 mt-10">
-            <div className="flex justify-between">
-                <span className="flex border border-blue-800 rounded-sm w-fit">
+        <>
+            {!finished && <div className="mx-12 mt-10">
+                <div className="flex justify-between">
+                    <span className="flex border border-blue-800 rounded-sm w-fit">
 
                         <Button variant='ghost' onClick={handlePunctuation}>
                             <div className={classNames('text-xs', 'font-extrabold', { 'text-sky-600': !arr[0], 'text-sky-200': arr[0] })}>@ ! ? :</div>
                         </Button>
 
-                    <Button variant='ghost' className="ml-2" onClick={handleNumber}>
-                        <div className={classNames('text-xs', 'font-extrabold', { 'text-sky-600': !arr[1], 'text-sky-200': arr[1] })}>123</div></Button>
+                        <Button variant='ghost' className="ml-2" onClick={handleNumber}>
+                            <div className={classNames('text-xs', 'font-extrabold', { 'text-sky-600': !arr[1], 'text-sky-200': arr[1] })}>123</div></Button>
 
-                    {params && <div className="flex border border-blue-500 rounded-sm" >
-                        <div className="m-2" ><AlarmClock color='red' /></div>
+                        {params && <div className="flex border border-blue-500 rounded-sm" >
+                            <div className="m-2" ><AlarmClock color='red' /></div>
 
-                        <Button variant='ghost' onClick={() => handleTimer(2)}>
-                            <div className={classNames('font-bold', { 'text-sky-600': !arr[2], 'text-white': arr[2] })}>{time[0]}
-                            </div>
-                        </Button>
+                            <Button variant='ghost' onClick={() => handleTimer(2)}>
+                                <div className={classNames('font-bold', { 'text-sky-600': !arr[2], 'text-white': arr[2] })}>{Math.floor(time[0])}
+                                </div>
+                            </Button>
 
-                        <Button variant='ghost' onClick={() => handleTimer(3)}>
-                            <div className={classNames('font-bold', { 'text-sky-600': !arr[3], 'text-white': arr[3]})}>{time[1]}</div></Button>
+                            <Button variant='ghost' onClick={() => handleTimer(3)}>
+                                <div className={classNames('font-bold', { 'text-sky-600': !arr[3], 'text-white': arr[3] })}>{Math.floor(time[1])}</div></Button>
 
-                        <Button variant='ghost' onClick={() => handleTimer(4)}><div className={classNames('font-extrabold', { 'text-sky-600': !arr[4], 'text-white': arr[4]})}>{time[2]}</div></Button>
+                            <Button variant='ghost' onClick={() => handleTimer(4)}><div className={classNames('font-extrabold', { 'text-sky-600': !arr[4], 'text-white': arr[4] })}>{Math.floor(time[2])}</div></Button>
 
-                        <Button variant='ghost' onClick={() => handleTimer(5)}><div className={classNames('font-extrabold', { 'text-sky-600': !arr[5], 'text-white': arr[5]})}>{time[3]}</div></Button>
+                            <Button variant='ghost' onClick={() => handleTimer(5)}><div className={classNames('font-extrabold', { 'text-sky-600': !arr[5], 'text-white': arr[5] })}>{Math.floor(time[3])}</div></Button>
+
+                        </div>}
+
+
+                        {/* custom Clipboard */}
+                        <div>
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant='ghost'><div className={classNames('font-extrabold', 'text-sky-600')}>Custom</div></Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-md">
+                                    <DialogHeader>
+                                        <DialogTitle>Custom  Text</DialogTitle>
+                                        <DialogDescription>
+                                            Paste anything here
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="flex items-center space-x-2">
+                                        <div className="grid flex-1 gap-2">
+                                            <Label htmlFor="link" className="sr-only">
+                                                Link
+                                            </Label>
+                                            <Input
+                                                id="link"
+                                                disabled
+                                                value={PastedValue}
+                                                readOnly
+                                            />
+                                        </div>
+                                        <Button type="submit" size="sm" className="px-3" onClick={handleClipEvent}>
+                                            <ClipboardSignature className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                    <DialogFooter className="sm:justify-start">
+                                        <DialogClose asChild>
+                                            <Button type="button" variant="secondary">
+                                                Close
+                                            </Button>
+                                        </DialogClose>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
+
+                    </span>
+
+
+                    {/* Parameter */}
+                    {params && <div className="flex border border-sky-800 rounded-sm w-fit gap-8 pt-2 px-4">
+
+                        <div className="flex">
+                            <Gauge color="green" />
+                            <span className="text-lg ml-2">{speed}</span>
+                            <span className="text-sm">wpm</span>
+                        </div>
+
+                        <div className="flex">
+                            <TbTargetArrow color="green" size={24} />
+                            <span className="text-lg ml-2">{accurate}</span>
+                            <span className="text-sm">%</span>
+                        </div>
 
                     </div>}
-
-
-                    {/* custom Clipboard */}
-                    <div>
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button variant='ghost'><div className={classNames('font-extrabold', 'text-sky-600')}>Custom</div></Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-md">
-                                <DialogHeader>
-                                    <DialogTitle>Custom  Text</DialogTitle>
-                                    <DialogDescription>
-                                        Paste anything here
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="flex items-center space-x-2">
-                                    <div className="grid flex-1 gap-2">
-                                        <Label htmlFor="link" className="sr-only">
-                                            Link
-                                        </Label>
-                                        <Input
-                                            id="link"
-                                            disabled
-                                            value={PastedValue}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <Button type="submit" size="sm" className="px-3" onClick={handleClipEvent}>
-                                        <ClipboardSignature className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                                <DialogFooter className="sm:justify-start">
-                                    <DialogClose asChild>
-                                        <Button type="button" variant="secondary">
-                                            Close
-                                        </Button>
-                                    </DialogClose>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-                    </div>
-                    
-                </span>
-
-
-                {/* Parameter */}
-                {params && <div className="flex border border-sky-800 rounded-sm w-fit gap-8 pt-2 px-4">
-
-                    <div className="flex">
-                        <Gauge color="green" />
-                        <span className="text-lg ml-2">{speed}</span>
-                        <span className="text-sm">wpm</span>
-                    </div>
-
-                    <div className="flex">
-                        <TbTargetArrow color="green" size={24}/>
-                        <span className="text-lg ml-2">{accurate}</span>
-                        <span className="text-sm">%</span>
-                    </div>
-
-                </div>}
-            </div>
-
-            <div className={classNames('border', 'shadow-md', 'p-6', 'rounded-md', 'flex', 'flex-col', 'gap-6', 'relative', 'm-12', { 'blur-sm': loading })}>
-                {strArr.length === 0 && <div>Loading....</div>}
-
-                <input
-                    autoComplete="off"
-                    autoCapitalize="off"
-                    autoCorrect="off"
-                    data-gramm="false"
-                    data-gramm_editor="false"
-                    data-enable-grammarly="false"
-                    list="autocompleteOff"
-                    className="absolute bottom-0 left-0 right-0 -z-10 opacity-0"
-                    inputMode="none"
-                    value={inputText}
-                    onKeyUp={handleInput}
-                    onChange={() => {console.log({inputText}) }}
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus
-                    onBlur={(e) => e?.target?.focus()}
-                />
-
-                <div className="flex gap-2 flex-wrap font-roboto_mono text-gray-500 tracking-wider text-xl">
-                    {strArr.map((word, i) => {
-                        const k = word + i;
-                        return (
-                            <Word
-                                key={k}
-                                word={word}
-                                inputText={usrArr.length === i ? inputText : usrArr[i]}
-                                done={usrArr[i]}
-                            />
-                        );
-                    })}
                 </div>
-            </div>
-        </div>
+
+                <div className={classNames('border', 'shadow-md', 'p-6', 'rounded-md', 'flex', 'flex-col', 'gap-6', 'relative', 'm-12', { 'blur-sm': loading })}>
+                    {strArr.length === 0 && <div>Loading....</div>}
+
+                    <input
+                        autoComplete="off"
+                        autoCapitalize="off"
+                        autoCorrect="off"
+                        data-gramm="false"
+                        data-gramm_editor="false"
+                        data-enable-grammarly="false"
+                        list="autocompleteOff"
+                        className="absolute bottom-0 left-0 right-0 -z-10 opacity-0"
+                        inputMode="none"
+                        value={inputText}
+                        onKeyUp={handleInput}
+                        onChange={() => { console.log({ inputText }) }}
+                        // eslint-disable-next-line jsx-a11y/no-autofocus
+                        autoFocus
+                        onBlur={(e) => e?.target?.focus()}
+                    />
+
+                    <div className="flex gap-2 flex-wrap font-roboto_mono text-gray-500 tracking-wider text-xl">
+                        {strArr.map((word, i) => {
+                            const k = word + i;
+                            return (
+                                <Word
+                                    key={k}
+                                    word={word}
+                                    inputText={usrArr.length === i ? inputText : usrArr[i]}
+                                    done={usrArr[i]}
+                                />
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>}
+
+            {finished && <div>{JSON.stringify(progress)}</div>}
+        </>
     )
 }
