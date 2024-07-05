@@ -2,11 +2,14 @@
 import { Button } from "@/components/ui/button";
 import classNames from "classnames";
 import { motion } from "framer-motion";
-import { AlarmClock, Gauge } from 'lucide-react';
+import { AlarmClock, Gauge, Github } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { TbTargetArrow } from "react-icons/tb";
+import logo from "../../public/logo_trans.png";
 
+import Chart from "@/components/chart";
 import {
     Dialog,
     DialogClose,
@@ -20,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ClipboardSignature } from "lucide-react";
+import Link from "next/link";
 
 const Cursor = ({ left, done }: { left?: boolean; done?: boolean }) => {
     return (
@@ -96,16 +100,17 @@ const Word = ({ word, inputText, done }: { word: string; inputText: string; done
     }, [word, inputText, done, isWrong]);
 };
 
-type ProgressProps = {
-    name: string;
-    accuracy: number;
-    speed: number;
-};
-
+export type Prg = {
+    name: string,
+    accuracy: number,
+    speed: number
+}
 
 export default function Home() {
     const [arr, setArr] = useState([false, false, false, false, false, false]);
-    const [progress, setProgress] = useState<ProgressProps[]>([{name: "0", accuracy: 0, speed: 0 }]);
+    const [progress, setProgress] = useState<Prg[]>([]);
+    // const [userTyped, setUserTyped] = useState<Array<string>>([]);
+    // const [given, setGiven] = useState<Array<string>>([]);
     const [usrArr, setUserArr] = useState<string[]>([]);
     const [inputText, setInputText] = useState("");
     const [lastWrong, setLastWrong] = useState(false);
@@ -140,7 +145,7 @@ export default function Home() {
     }, []);
 
 
-    const restartGame = useCallback(() =>{
+    const restartGame = useCallback(() => {
         setData();
         setInputText("");
         setLastWrong(false);
@@ -163,7 +168,7 @@ export default function Home() {
                 prev[index - 2] = prev[index - 2] - 0.5;
                 if (prev[index - 2] <= 0.5) {
                     setFinished(true);
-                    restartGame();
+                    // restartGame();
                 }
                 return prev;
             })
@@ -171,7 +176,7 @@ export default function Home() {
         return () => {
             clearInterval(runningClock);
         }
-    }, [arr, restartGame]);
+    }, [arr]);
 
     const calculateAccuracy = useCallback((strArr: Array<string>, usrArr: Array<string>) => {
         const totalLength = usrArr.join('').split('').length;
@@ -228,6 +233,7 @@ export default function Home() {
     const handleInput = (e: { nativeEvent: { key: any; }; }) => {
         const char = e.nativeEvent.key;
 
+
         // console.log(`After`);
         // console.table([inputText, usrArr]);
         if (gamestart === "not_started") {
@@ -236,6 +242,7 @@ export default function Home() {
         }
 
         if (char === " ") {
+
             if (inputText?.length > 0) {
                 if (strArr[usrArr.length] !== inputText)
                     setLastWrong(true);         //current word is right or wrong
@@ -245,14 +252,23 @@ export default function Home() {
                     return prevUsrArr;
                 }); //add to usrArr
                 setInputText("");
+                let temp: Prg = { name: usrArr.length + "", accuracy: accurate, speed: speed };
+                setProgress((t) => {
+                    let tt = [...t];
+                    tt.push(temp);
+                    return tt;
+                });
+                // console.log(speed);
+                // console.log(accurate);
+                // console.log(temp);
             }
-            console.log(`Space Pressed`)
-            console.log(`After`);
-            if (usrArr.length >= strArr.length - 1){
+            // console.log(`Space Pressed`)
+            // console.log(`After`);
+            if (usrArr.length >= strArr.length - 1) {
                 setFinished(true);
                 restartGame();
             }
-            console.table([inputText, usrArr]);
+            // console.table([inputText, usrArr]);
         }
         else if (char.length === 1) {
             setInputText((s) => s + char);
@@ -275,8 +291,16 @@ export default function Home() {
                 setInputText(inputText.slice(0, inputText.length - 1) || "");
             }
         };
-        // console.log(`After`);
-        // console.table([inputText, usrArr]);
+        console.log(`After`);
+        // console.table([inputText, usrArr);
+        // setUserTyped((t)=>{
+        //     let temp = [...usrArr];
+        //     temp.push(inputText);
+        //     return temp;
+        // });
+        // console.log(userTyped);
+
+        // console.log(usrArr);
     }
 
     function addInputs(punctuations: Array<string>) {
@@ -353,8 +377,10 @@ export default function Home() {
     return (
         <>
             {!finished && <div className="mx-12 mt-10">
-                <div className="flex justify-between">
-                    <span className="flex border border-blue-800 rounded-sm w-fit">
+                <div className="flex justify-center items-center mb-4"><Image src={logo} height={80} alt="logo" /></div>
+                <div className="flex justify-center">
+
+                    <span className="flex border border-blue-800 rounded-sm w-fit mr-12">
 
                         <Button variant='ghost' onClick={handlePunctuation}>
                             <div className={classNames('text-xs', 'font-extrabold', { 'text-sky-600': !arr[0], 'text-sky-200': arr[0] })}>@ ! ? :</div>
@@ -425,7 +451,7 @@ export default function Home() {
 
 
                     {/* Parameter */}
-                    {params && <div className="flex border border-sky-800 rounded-sm w-fit gap-8 pt-2 px-4">
+                    {params && <div className="flex border border-sky-800 rounded-sm w-fit gap-8 pt-2 px-4 ml-12">
 
                         <div className="flex">
                             <Gauge color="green" />
@@ -440,9 +466,11 @@ export default function Home() {
                         </div>
 
                     </div>}
+
+
                 </div>
 
-                <div className={classNames('border', 'shadow-md', 'p-6', 'rounded-md', 'flex', 'flex-col', 'gap-6', 'relative', 'm-12', { 'blur-sm': loading })}>
+                <div className={classNames('border', 'shadow-md', 'p-6', 'rounded-md', 'flex', 'flex-col', 'gap-6', 'relative', 'mt-8', { 'blur-sm': loading })}>
                     {strArr.length === 0 && <div>Loading....</div>}
 
                     <input
@@ -457,7 +485,7 @@ export default function Home() {
                         inputMode="none"
                         value={inputText}
                         onKeyUp={handleInput}
-                        onChange={() => { console.log({ inputText }) }}
+                        // onChange={() => { console.log({ inputText }) }}
                         autoFocus
                         onBlur={(e) => e?.target?.focus()}
                     />
@@ -476,9 +504,22 @@ export default function Home() {
                         })}
                     </div>
                 </div>
+
+                <div className="mt-[calc(100vh-500px)] ml-[calc(50vw-50px)] hover:bg-slate-700 p-4 rounded-lg w-fit transition-all cursor-pointer duration-200"><Link href="https://github.com/Abinash4567/type_swift"><Github /></Link></div>
             </div>}
 
-            {finished && <div>{JSON.stringify(progress)}</div>}
+            {finished &&
+                <div className="h-screen flex items-center justify-center">
+                    <div>
+                        <div className="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl ml-48">
+                            <div>Progress Report</div>
+
+                        </div>
+                        <div className=""></div>
+                        <Chart data={progress} />
+                        <div className="ml-[calc(50vw-320px)] hover:bg-slate-700 p-4 rounded-lg w-fit transition-all cursor-pointer duration-200"><Link href="https://github.com/Abinash4567/type_swift"><Github /></Link></div>
+                    </div>
+                </div>}
         </>
     )
 }
